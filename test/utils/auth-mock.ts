@@ -12,6 +12,20 @@ export const mockUser: MockAuthUser = {
   verified: true
 }
 
+// Mock the navigateTo function at module level
+const mockNavigateTo = vi.fn()
+
+// Mock #app/nuxt at module level
+vi.mock('#app/nuxt', () => ({
+  navigateTo: mockNavigateTo,
+  defineNuxtRouteMiddleware: vi.fn((middleware) => {
+    return (to: any, from: any) => {
+      // This would be handled by the actual middleware
+      return undefined
+    }
+  })
+}))
+
 export function mockHankoAuth(isAuthenticated: boolean = true, user: MockAuthUser = mockUser) {
   // Mock the Hanko client
   const mockHankoClient = {
@@ -33,24 +47,6 @@ export function mockHankoAuth(isAuthenticated: boolean = true, user: MockAuthUse
     default: mockHankoClient
   }))
 
-  // Mock the middleware by intercepting the route navigation
-  vi.mock('#app/nuxt', async () => {
-    const actual = await vi.importActual('#app/nuxt')
-    return {
-      ...actual,
-      navigateTo: vi.fn(),
-      defineNuxtRouteMiddleware: vi.fn((middleware) => {
-        // Return a mock middleware that either allows or redirects based on auth state
-        return (to: any, from: any) => {
-          if (!isAuthenticated && to.path !== '/login') {
-            return '/login'
-          }
-          return undefined
-        }
-      })
-    }
-  })
-
   return mockHankoClient
 }
 
@@ -61,3 +57,6 @@ export function mockAuthenticatedUser(user: MockAuthUser = mockUser) {
 export function mockUnauthenticatedUser() {
   return mockHankoAuth(false)
 }
+
+// Export the mockNavigateTo for use in tests if needed
+export { mockNavigateTo }
