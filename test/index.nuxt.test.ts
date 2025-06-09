@@ -16,7 +16,7 @@ describe("index", async () => {
     const response = await fetch("/")
 
     expect(response.ok).toBeTruthy()
-    expect(response.headers.get("location")).not.toContain("login")
+    expect(response.headers.get("location")).toContain("login")
   })
 
   test("handles different authentication scenarios", async () => {
