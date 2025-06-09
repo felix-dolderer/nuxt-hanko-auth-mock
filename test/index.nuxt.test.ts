@@ -13,7 +13,7 @@ describe("index", async () => {
     // Mock authenticated state for this test
     mockAuthenticatedUser()
     
-    const response = await fetch("/")
+    const response = await fetch("/", { redirect: 'manual' })
 
     expect(response.ok).toBeTruthy()
     expect(response.headers.get("location")).toContain("login")
