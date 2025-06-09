@@ -15,16 +15,27 @@ export const mockUser: MockAuthUser = {
 // Mock the navigateTo function at module level
 const mockNavigateTo = vi.fn()
 
-// Mock #app/nuxt at module level
-vi.mock('#app/nuxt', () => ({
-  navigateTo: mockNavigateTo,
-  defineNuxtRouteMiddleware: vi.fn((middleware) => {
-    return (to: any, from: any) => {
-      // This would be handled by the actual middleware
-      return undefined
-    }
-  })
-}))
+// Mock #app/nuxt at module level with all required exports
+vi.mock('#app/nuxt', async () => {
+  const actual = await vi.importActual('#app/nuxt')
+  return {
+    ...actual,
+    navigateTo: mockNavigateTo,
+    useNuxtApp: vi.fn(() => ({
+      $router: {
+        push: vi.fn(),
+        replace: vi.fn(),
+      },
+      ssrContext: {},
+    })),
+    defineNuxtRouteMiddleware: vi.fn((middleware) => {
+      return (to: any, from: any) => {
+        // This would be handled by the actual middleware
+        return undefined
+      }
+    })
+  }
+})
 
 export function mockHankoAuth(isAuthenticated: boolean = true, user: MockAuthUser = mockUser) {
   // Mock the Hanko client
