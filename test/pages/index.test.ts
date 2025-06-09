@@ -3,6 +3,13 @@ import { describe, expect, test, beforeEach, vi } from 'vitest'
 import IndexPage from '~/pages/index.vue'
 import { mockAuthenticatedUser, mockUnauthenticatedUser } from '../utils/auth-mock'
 
+// Mock the navigateTo function at the top level
+const mockNavigateTo = vi.fn()
+vi.mock('#app/nuxt', () => ({
+  navigateTo: mockNavigateTo,
+  defineNuxtRouteMiddleware: vi.fn()
+}))
+
 describe('Index Page', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -31,13 +38,6 @@ describe('Index Page', () => {
   test('unauthenticated user is redirected to login', async () => {
     // Mock unauthenticated state
     const mockClient = mockUnauthenticatedUser()
-    
-    // Mock the navigateTo function to capture redirects
-    const mockNavigateTo = vi.fn()
-    vi.mock('#app/nuxt', () => ({
-      navigateTo: mockNavigateTo,
-      defineNuxtRouteMiddleware: vi.fn()
-    }))
 
     // Simulate what the middleware would do for an unauthenticated user
     const isValid = await mockClient.session.isValid()
